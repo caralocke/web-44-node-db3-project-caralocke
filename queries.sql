@@ -22,3 +22,10 @@ where orderdetail.orderid = 10251
 order by product.productname;
 
 -- Display the OrderID, Customer's Company Name and the employee's LastName for every order. All columns should be labeled clearly. Displays 16,789 records.
+
+select distinct orderdetail.orderid, customer.companyname, employee.lastname
+from [order]
+join orderdetail on [order].id = orderdetail.OrderId
+join customer on [order].customerid = customer.Id
+join employee on [order].employeeid = employee.id
+order by [order].id;
