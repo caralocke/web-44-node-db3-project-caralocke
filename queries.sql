@@ -14,7 +14,7 @@ where [order].orderdate < "2012-08-09";
 
 -- Display the name and quantity of the products ordered in order with Id 10251. Sort by ProductName. Shows 3 records.
 
-elect product.productname, orderdetail.quantity
+select product.productname, orderdetail.quantity
 from orderdetail
 join product
 on orderdetail.productid = product.id
