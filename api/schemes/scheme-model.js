@@ -1,4 +1,5 @@
 const db = require('../../data/db-config')
+
 function find() { // EXERCISE A
   /*
     1A- Study the SQL query below running it in SQLite Studio against `data/schemes.db3`.
@@ -25,7 +26,26 @@ function find() { // EXERCISE A
     return schemes
 }
 
-function findById(scheme_id) { // EXERCISE B
+async function findById(scheme_id) { // EXERCISE B
+        const rows = await db('schemes as sc')
+      .select('sc.scheme_name', 'st.*')
+      .leftJoin('steps as st', 'sc.scheme_id', 'st.scheme_id')
+      .where({
+        "sc.scheme_id": scheme_id
+      })
+      .orderBy('st.step_number');
+    const steps = rows.filter(row => row.step_id)
+          .map(({step_id, step_number, instructions}) => {
+            return {step_id, step_number, instructions};
+          });
+    const returnVal = {
+      scheme_id: Number(scheme_id),
+      scheme_name: rows.reduce((acc, curr) => {
+        return curr.scheme_name;
+      }, null),
+      steps
+    };
+    return returnVal;
   /*
     1B- Study the SQL query below running it in SQLite Studio against `data/schemes.db3`:
 
@@ -93,7 +113,7 @@ function findById(scheme_id) { // EXERCISE B
   */
 }
 
-function findSteps(scheme_id) { // EXERCISE C
+async function findSteps(scheme_id) { // EXERCISE C
   /*
     1C- Build a query in Knex that returns the following data.
     The steps should be sorted by step_number, and the array
@@ -114,6 +134,32 @@ function findSteps(scheme_id) { // EXERCISE C
         }
       ]
   */
+//  const rows = await db('schemes as sc')
+//       .select('sc.scheme_name', 'st*')
+//       .leftJoin('steps as st', 'sc.scheme_id', 'st.scheme_id')
+//       .where('sc.scheme_id', scheme_id)
+//       .orderBy('st.step_number')
+//   const steps = rows.filter(row => row.step_id).map(({step_id, step_number, instructions}) => {
+//     return {step_id, step_number, instructions};
+//   });
+// const schemeSteps = {
+// scheme_id: Number(scheme_id),
+// scheme_name: rows.reduce((acc, curr) => {
+// return curr.scheme_name;
+// }, null),
+// steps   
+// };
+// return schemeSteps;
+if (typeof(scheme_id) !== "number") {
+  scheme_id = parseInt(scheme_id);
+}
+let returnScheme = await db('schemes')
+  .where({ scheme_id })
+  .first();
+  
+returnScheme.steps = await findSteps(scheme_id);
+
+return returnScheme;
 }
 
 function add(scheme) { // EXERCISE D
